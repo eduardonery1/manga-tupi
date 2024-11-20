@@ -1,6 +1,5 @@
 import requests
-import json
-import os
+import threading
 import subprocess
 from sys import exit
 from menu import menu
@@ -8,6 +7,9 @@ from menu import menu
 # from reportlab.lib.pagesizes import A4
 from pathlib import Path
 
+
+def run(dir_path):
+    subprocess.run(["feh", dir_path, "-R 1"])
 
 if __name__=="__main__":
 
@@ -27,7 +29,7 @@ if __name__=="__main__":
     chapters = requests.get(
         f"{base_url}/manga/{title_ids[titles.index(selected_title)]}/feed"
     ).json()["data"]
-    chapters.sort(key = lambda x: float(x["attributes"]["chapter"]))
+    chapters.sort(key = lambda chap: float(chap["attributes"]["chapter"]))
 
     chapters_num = [chap["attributes"]["chapter"] for chap in chapters]
     chapter_ids = [chap["id"] for chap in chapters]
@@ -44,6 +46,8 @@ if __name__=="__main__":
     dir_path = Path(f"{selected_title}/{selected_chapter}")
     dir_path.mkdir(parents=True, exist_ok=True)
     first = True
+    thread = threading.Thread(target=run, args=(dir_path,))
+
     for i in range(len(pages["chapter"]["data"])):
         url = pages["baseUrl"] + "/data/" + pages["chapter"]["hash"] + "/" + pages["chapter"]["data"][i]
         img_data = requests.get(url).content
@@ -52,11 +56,12 @@ if __name__=="__main__":
             img.write(img_data)
         
         if first:
-            subprocess.run(["viewnior", dir_path, "--sync"])
+            thread.start()
             first = False
         
         #can.drawImage(f"temp{i}.png", 0, 0, preserveAspectRatio=True)
         #can.showPage()
     #can.save()
+    thread.join()
 
 
