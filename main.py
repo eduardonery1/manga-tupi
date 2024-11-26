@@ -7,6 +7,7 @@ from sys import exit
 from menu import menu
 from pathlib import Path
 
+
 def run(dir_path):
     subprocess.run(["feh", dir_path, "-R 1"])
 
@@ -28,8 +29,10 @@ if __name__=="__main__":
         exit()
 
     chapters = requests.get(
-        f"{base_url}/manga/{title_ids[titles.index(selected_title)]}/feed?includeFuturePublishAt=0&includeExternalUrl=0"
-    ).json()["data"]
+        f"{base_url}/manga/{title_ids[titles.index(selected_title)]}/feed?includeFuturePublishAt=0&includeExternalUrl=0&includeEmptyPages=0&limit=500&translatedLanguage[]=en&translatedLanguage[]=pt-br"
+    )
+    #print(chapters.text)
+    chapters = chapters.json()["data"]
     chapters = [chaps for chaps in filter(lambda chap: chap["attributes"]["translatedLanguage"] == "pt-br" or chap["attributes"]["translatedLanguage"] == "en", chapters)]
     chapters.sort(key = lambda chap: float(chap["attributes"]["chapter"]))
     chapters_num = [chap["attributes"]["chapter"] + " - " + chap["attributes"]["translatedLanguage"] for chap in chapters]
