@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 def run(dir_path):
-    subprocess.run(["feh", dir_path, "-R 1"])
+    subprocess.run(["feh", dir_path, "-R 1", "--fullscreen", "--scale-down"])
 
 if __name__=="__main__":
 
